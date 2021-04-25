@@ -3,14 +3,14 @@ class object {
     this.r = r;
     this.v = 0;
     this.acc = 1/30*9.8;
-    this.curtrackIndex = 20000;
+    this.curtrackIndex = 100;
   }
 
 
 
   update() {
     this.v += this.acc * cos(track[round(this.curtrackIndex)][2]);
-    this.curtrackIndex += round(this.v * 10);
+    this.curtrackIndex += this.v * 10;
   }
 
   show() {
@@ -20,12 +20,10 @@ class object {
 
 let track = [[0, 0, 0]];
 
-
 let length;
 let obj1;
 
-let r = 50;
-
+let r = 64;
 
 function setup() {
   createCanvas(400, 400);
@@ -39,7 +37,7 @@ function setup() {
   for (let i = 1; i < length; i++) {
     //track.push([width/length*(i), track[i-1][1]+random(-0.03, 0.06), 0]);
     //track.push([width/length*(i), track[i-1][1] - 0.2, 0]);
-    let t = -8.7/length * i;
+    let t = -TWO_PI/length * i;
     track.push([-r*(t - sin(t)), r*(1 - cos(t)), 0]);
     //track.push([track[i-1][0]+1, 0]);
     track[i-1][2] = find_angle({x: track[i-1][0], y: height}, {x: track[i-1][0], y: track[i-1][1]}, {x: track[i][0], y: track[i][1]});
