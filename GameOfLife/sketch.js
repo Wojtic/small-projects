@@ -1,9 +1,14 @@
+const X = 100;
+const Y = 100;
+const SQUARE_SIZE = 10;
+
 function setup() {
-  createCanvas(1000, 1000);
-  frameRate(5);
+  createCanvas(X * SQUARE_SIZE, Y * SQUARE_SIZE);
+  frameRate(10);
   generate();
 }
 
+let density = 0.1;
 let world = [];
 let c1 = 200;
 let c2 = 0;
@@ -13,13 +18,13 @@ function generate() {
   c2 = map(Math.random(), 0, 1, 0, 255);
 
   world = [];
-  for (let i = 0; i < 250000; i++) {
-    if (Math.random() > 0.9) {
-      world.push(true);
-    } else {
-      world.push(false);
+  for (let i = 0; i < X; i++) {
+    world[i] = [];
+    for (let j = 0; j < Y; j++) {
+      world[i].push(Math.random() > 1 - density);
     }
   }
+  console.log(world);
 }
 
 let timer = 0;
@@ -29,90 +34,42 @@ function draw() {
   noStroke();
   fill(c2);
 
-  timer += 0.1;
+  timer += 1;
 
-  if (timer >= 10) {
+  if (timer >= 200) {
     timer = 0;
     generate();
   }
 
-  let genWorld = world;
+  let newWorld = JSON.parse(JSON.stringify(world));
 
-  for (let i = 0; i < world.length; i++) {
-    let neighbours = 0;
+  for (let i = 1; i < X - 1; i++) {
+    for (let j = 1; j < Y - 1; j++) {
+      let neighbours = 0;
 
-    if (
-      i > Math.sqrt(world.length) &&
-      i % Math.sqrt(world.length) > 2 &&
-      i % Math.sqrt(world.length) < Math.sqrt(world.length) - 2 &&
-      i < world.length - Math.sqrt(world.length)
-    ) {
-      if (genWorld[i + 1]) {
-        neighbours++;
-      }
-      if (genWorld[i - 1]) {
-        neighbours++;
-      }
-      if (genWorld[i - Math.sqrt(world.length)]) {
-        neighbours++;
-      }
-      if (genWorld[i - (Math.sqrt(world.length) + 1)]) {
-        neighbours++;
-      }
-      if (genWorld[i - (Math.sqrt(world.length) - 1)]) {
-        neighbours++;
-      }
-      if (genWorld[i + Math.sqrt(world.length)]) {
-        neighbours++;
-      }
-      if (genWorld[i + (Math.sqrt(world.length) + 1)]) {
-        neighbours++;
-      }
-      if (genWorld[i + (Math.sqrt(world.length) - 1)]) {
-        neighbours++;
-      }
+      if (world[i][j + 1]) neighbours++;
+      if (world[i][j - 1]) neighbours++;
+      if (world[i + 1][j + 1]) neighbours++;
+      if (world[i + 1][j]) neighbours++;
+      if (world[i + 1][j - 1]) neighbours++;
+      if (world[i - 1][j + 1]) neighbours++;
+      if (world[i - 1][j]) neighbours++;
+      if (world[i - 1][j - 1]) neighbours++;
 
-      switch (neighbours) {
-        case 8:
-          world[i] = false;
-          break;
-        case 7:
-          world[i] = false;
-          break;
-        case 6:
-          world[i] = false;
-          break;
-        case 5:
-          world[i] = false;
-          break;
-        case 4:
-          world[i] = false;
-          break;
-        case 3:
-          world[i] = true;
-          break;
-        case 2:
-          if (genWorld[i] == 0) {
-            world[i] = false;
-          } else {
-            world[i] = true;
-          }
-          break;
-        case 1:
-          world[i] = false;
-          break;
-        case 0:
-          world[i] = false;
-          break;
-      }
+      if (world[i][j] && (neighbours == 2 || neighbours == 3))
+        newWorld[i][j] = true;
+      else if (!world[i][j] && neighbours == 3) newWorld[i][j] = true;
+      else newWorld[i][j] = false;
     }
   }
 
-  for (let i = 0; i < world.length; i++) {
-    if (world[i]) {
-      let x = (i % Math.sqrt(world.length)) * 10;
-      let y = Math.floor(i / Math.sqrt(world.length)) * 10;
-      square(x, y, 10);
+  world = newWorld;
+
+  for (let i = 0; i < X; i++) {
+    for (let j = 0; j < Y; j++) {
+      if (world[i][j]) {
+        square(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE);
+      }
     }
   }
 }
